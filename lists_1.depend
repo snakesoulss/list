@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1717750125 source:d:\stasy\lists_1\list.c
+	<stdio.h>
+	<stdlib.h>
+	"list.h"
+	"struct.h"
+
+1717750125 d:\stasy\lists_1\list.h
+	"struct.h"
+
+1717750125 d:\stasy\lists_1\struct.h
+
+1717750125 source:d:\stasy\lists_1\main.c
+	<stdio.h>
+	<stdlib.h>
+	"list.h"
+	"struct.h"
+

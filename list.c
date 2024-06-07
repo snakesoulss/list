@@ -3,90 +3,125 @@
 #include "list.h"
 #include "struct.h"
 
-Node* add_after(Node* current, int x) {
+List* create_list() {
+    List* list = malloc(sizeof(List));
+    if (!list) {
+        printf("Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    list->head = NULL;
+    return list;
+}
+
+void add_after(Node* current, int x) {
     Node* new_node = malloc(sizeof(Node));
     if (!new_node) {
         printf("Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
     new_node->num = x;
-    new_node->flag = 1;
     new_node->next = current->next;
     new_node->prev = current;
-    current->next->prev = new_node;
-    current->next = new_node;
-    if (!current->flag) {
-        return new_node->next;
+    if (current->next) {
+        current->next->prev = new_node;
     }
-    return current->next;
+    current->next = new_node;
 }
 
-
-Node* add_before(Node* current, int x) {
+void add_before(List* list, Node* current, int x) {
     Node* new_node = malloc(sizeof(Node));
     if (!new_node) {
         printf("Memory allocation failed\n");
         exit(EXIT_FAILURE);
     }
     new_node->num = x;
-    new_node->flag = 1;
-    new_node->next = current;
     new_node->prev = current->prev;
-    current->prev->next = new_node;
-    current->prev = new_node;
-    if (!current->flag) {
-        return new_node->prev;
+    new_node->next = current;
+    if (current->prev) {
+        current->prev->next = new_node;
+    } else {
+        list->head = new_node;
     }
-    return current->prev;
+    current->prev = new_node;
 }
 
-Node* elem_delete(Node* current) {
-    if (current->flag == 0) {
-        return current;
+void delete_node(List* list, Node* current) {
+    if (!current) return;
+
+    if (current->prev) {
+        current->prev->next = current->next;
+    } else {
+        list->head = current->next;
     }
-    current->prev->next = current->next;
-    current->next->prev = current->prev;
-    Node* next_node = current->next;
+    if (current->next) {
+        current->next->prev = current->prev;
+    }
     free(current);
-    if (!next_node->flag) {
-        return next_node->next;
-    }
-    return next_node;
 }
 
 Node* move_next(Node* current) {
-    current = current->next;
-    if (!current->flag) {
-        current = current->next;
-    }
-    return current;
+    return current ? current->next : NULL;
 }
 
 Node* move_prev(Node* current) {
-    current = current->prev;
-    if (!current->flag) {
-        current = current->prev;
-    }
-    return current;
+    return current ? current->prev : NULL;
 }
 
-void print_list(Node* head) {
-    Node* current = head;
-    do {
-        if (current->flag) {
-            printf("%d ", current->num);
-        }
+void print_list(List* list) {
+    Node* current = list->head;
+    while (current) {
+        printf("%d ", current->num);
         current = current->next;
-    } while (current != head);
+    }
     printf("\n");
 }
 
-void free_list(Node* head) {
-    Node* current = head;
-    while (current->next != head) {
-        Node* temp = current;
-        current = current->next;
-        free(temp);
+void free_list(List* list) {
+    Node* current = list->head;
+    while (current) {
+        Node* next = current->next;
+        free(current);
+        current = next;
     }
-    free(current); // Free the last node
+    free(list);
+}
+
+List* copy_list(List* list) {
+    List* new_list = create_list();
+    if (!list->head) {
+        return new_list;
+    }
+
+    Node* current = list->head;
+    Node* new_current = malloc(sizeof(Node));
+    if (!new_current) {
+        printf("Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+
+    new_current->num = current->num;
+    new_current->prev = NULL;
+    new_list->head = new_current;
+
+    Node* prev_new = new_current;
+    current = current->next;
+
+    while (current) {
+        new_current = malloc(sizeof(Node));
+        if (!new_current) {
+            printf("Memory allocation failed\n");
+            exit(EXIT_FAILURE);
+        }
+        new_current->num = current->num;
+        new_current->prev = prev_new;
+        prev_new->next = new_current;
+        prev_new = new_current;
+        current = current->next;
+    }
+    prev_new->next = NULL;
+    return new_list;
+}
+
+int get_current_value(Node* current) {
+    return current ? current->num : -1;
 }
